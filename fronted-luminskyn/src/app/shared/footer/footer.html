@@ -1,102 +1,72 @@
 <footer class="footer">
-
-    <!-- TOP -->
-    <div class="footer__top">
-
-        <div class="footer__brand">
-            <!-- 🔧 IMAGEN -->
-            <img src="assets/img/logo.png" alt="Logo LuminSkyn" class="footer__logo">
-            <h2 class="footer__name">LuminSkyn</h2>
-            <p class="footer__description">
-                Skincare facial para una piel sana, luminosa y natural ✨
-            </p>
-        </div>
-
-        <div class="footer__newsletter">
-            <h3 class="footer__heading">Únete a nuestra comunidad</h3>
-
-            <!-- 🔧 FORMULARIO ANGULAR -->
-            <form class="footer__form" (ngSubmit)="suscribirse()">
-
-                <input 
-                    type="email" 
-                    placeholder="Escribe tu correo" 
-                    class="footer__input"
-                    [(ngModel)]="correo"
-                    name="correo"
-                    required
-                >
-
-                <button class="footer__button" type="submit">
-                    Suscribirme
-                </button>
-
-            </form>
-        </div>
-
+  <div class="footer__top">
+    <div class="footer__brand">
+      <img src="assets/img/logo.png" alt="" class="footer__logo" />
+      <h2 class="footer__name">LuminSkyn</h2>
+      <p class="footer__description">Tu espacio de cuidado personal.</p>
     </div>
-
-    <!-- CONTENIDO -->
-    <div class="footer__content">
-
-        <!-- CATEGORÍAS -->
-        <div class="footer__column">
-            <h3 class="footer__heading">Skincare</h3>
-            <ul class="footer__list">
-
-                <!-- 🔧 ROUTER -->
-                <li><a routerLink="/tienda" class="footer__link">Cuidado Facial</a></li>
-                <li><a routerLink="/tienda" class="footer__link">Rutina</a></li>
-                <li><a routerLink="/tienda" class="footer__link">Tipos de Piel</a></li>
-                <li><a routerLink="/tienda" class="footer__link">Accesorios</a></li>
-
-            </ul>
+    <div class="footer__newsletter">
+      <h3 class="footer__heading">Únete a nuestra comunidad</h3>
+      <form #form="ngForm" (ngSubmit)="suscribirse(form)">
+        <div class="footer__form">
+          <input
+            type="email"
+            aria-label="Correo para suscripción"
+            placeholder="Escribe tu correo"
+            class="footer__input"
+            [(ngModel)]="correo"
+            name="correo"
+            required
+            email
+            maxlength="160"
+          /><button class="footer__button" type="submit" [disabled]="ocupado()">
+            {{ ocupado() ? 'Guardando…' : 'Suscribirme' }}
+          </button>
         </div>
-
-        <!-- AYUDA -->
-        <div class="footer__column">
-            <h3 class="footer__heading">Ayuda</h3>
-            <ul class="footer__list">
-                <li><a href="#" class="footer__link">Cambios y devoluciones</a></li>
-                <li><a href="#" class="footer__link">Términos y condiciones</a></li>
-                <li><a href="#" class="footer__link">Privacidad</a></li>
-            </ul>
-        </div>
-
-        <!-- CONTACTO -->
-        <div class="footer__column">
-            <h3 class="footer__heading">Contacto</h3>
-            <p class="footer__text">📞 +51 999 999 999</p>
-            <p class="footer__text">📧 ventas@luminskyn.com</p>
-
-            <!-- REDES -->
-            <div class="footer__social">
-                <ul class="footer__social-list">
-                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-facebook-f"></i></a></li>
-                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-instagram"></i></a></li>
-                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-tiktok"></i></a></li>
-                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-youtube"></i></a></li>
-                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-linkedin-in"></i></a></li>
-                </ul>
-            </div>
-
-        </div>
-
+        <label class="check"
+          ><input type="checkbox" name="consentimiento" [(ngModel)]="consentimiento" required />
+          Acepto guardar mi suscripción. <a routerLink="/ayuda/privacidad">Privacidad</a></label
+        >
+      </form>
+      <p role="status">{{ mensaje() }}</p>
     </div>
-
-    <!-- BOTTOM -->
-    <div class="footer__bottom">
-
-        <p class="footer__copy">
-            © 2026 LuminSkyn - Todos los derechos reservados
-        </p>
-
-        <div class="footer__payments">
-            <span>💳</span>
-            <span>💳</span>
-            <span>💳</span>
-        </div>
-
+  </div>
+  <div class="footer__content">
+    <div class="footer__column">
+      <h3 class="footer__heading">Explora</h3>
+      <ul class="footer__list">
+        <li><a routerLink="/tienda" class="footer__link">Catálogo</a></li>
+        <li><a routerLink="/ayuda/rutina" class="footer__link">Rutina</a></li>
+        <li>
+          <a routerLink="/tienda" [queryParams]="{ categoria: 'Accesorios' }" class="footer__link"
+            >Accesorios</a
+          >
+        </li>
+      </ul>
     </div>
-
+    <div class="footer__column">
+      <h3 class="footer__heading">Ayuda</h3>
+      <ul class="footer__list">
+        <li>
+          <a routerLink="/ayuda/devoluciones" class="footer__link">Consultas sobre pedidos</a>
+        </li>
+        <li><a routerLink="/ayuda/terminos" class="footer__link">Cómo funciona</a></li>
+        <li><a routerLink="/ayuda/privacidad" class="footer__link">Privacidad</a></li>
+      </ul>
+    </div>
+    <div class="footer__column">
+      <h3 class="footer__heading">Tu cuenta</h3>
+      <ul class="footer__list">
+        <li><a routerLink="/registro" class="footer__link">Crear cuenta</a></li>
+        <li><a routerLink="/cuenta" class="footer__link">Mis pedidos</a></li>
+        <li><a routerLink="/contacto" class="footer__link">Cotizaciones y consultas</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <p class="footer__copy">
+      © 2026 LuminSkyn · Proyecto de portafolio. Pedidos de demostración, sin cobros ni envíos
+      reales.
+    </p>
+  </div>
 </footer>

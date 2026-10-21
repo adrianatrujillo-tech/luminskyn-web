@@ -9,14 +9,10 @@ import { FooterComponent } from './shared/footer/footer';
   selector: 'app-root',
   standalone: true, // 👈 IMPORTANTE (si no está, agrégalo)
 
-  imports: [
-    RouterOutlet,
-    HeaderComponent,
-    FooterComponent
-  ],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
 
   templateUrl: './app.html',
-  styleUrls: ['./app.css'] // 👈 corrige esto (era styleUrl)
+  styleUrls: ['./app.css'], // 👈 corrige esto (era styleUrl)
 })
 export class App {
   protected readonly title = signal('fronted-luminskyn');

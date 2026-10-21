@@ -1,98 +1,110 @@
-
-
-<main class="main">
-
-    <!-- 🛒 CARRITO -->
-    <section class="carrito">
-
-        <h2 class="carrito__title">🛒 Tu carrito LuminSkyn</h2>
-
-        <!-- 🔥 LISTA DINÁMICA -->
-        <div class="carrito__lista">
-
-            <div *ngFor="let item of carrito" class="carrito__item">
-
-                <p>{{ item.nombre }}</p>
-
-                <div class="carrito__cantidad">
-                    <button (click)="disminuirCantidad(item.nombre)">-</button>
-                    <span>{{ item.cantidad }}</span>
-                    <button (click)="aumentarCantidad(item.nombre)">+</button>
-                </div>
-
-                <p>S/ {{ item.precio * item.cantidad }}</p>
-
-                <button (click)="eliminarProducto(item.nombre)">
-                    ❌
-                </button>
-
-            </div>
-
-        </div>
-
-        <!-- 🔥 TOTAL -->
-        <p class="carrito__total">
-            Total: S/ {{ total }}
-        </p>
-
-        <!-- BOTONES -->
-        <div class="carrito__acciones">
-
-            <button (click)="vaciarCarrito()" class="carrito__btn carrito__btn--vaciar">
-                Vaciar carrito
-            </button>
-
-            <button type="button" (click)="comprarCarrito()" class="carrito__btn carrito__btn--comprar">
-                Comprar ahora
-            </button>
-
-        </div>
-
+<main id="contenido" class="page">
+  <h1>Tu carrito</h1>
+  @if (confirmacion(); as p) {
+    <section class="panel" role="status">
+      <h2>¡Pedido #{{ p.id }} registrado!</h2>
+      <p>
+        Total: <strong>{{ p.total | currency: 'PEN' : 'S/ ' : '1.2-2' }}</strong>
+      </p>
+      <p>Pago contra entrega. No se ha realizado ningún cobro en línea.</p>
+      <a class="button" routerLink="/cuenta">Ver mis pedidos</a>
     </section>
-
-
-    <!-- 🧾 MODAL -->
-    <div class="modal" *ngIf="mostrarModal">
-
-        <div class="modal__overlay" (click)="cerrarModal()"></div>
-
-        <div class="modal__contenido">
-
-            <button class="modal__cerrar" (click)="cerrarModal()">
-                &times;
+  }
+  @if (error()) {
+    <p class="notice error" role="alert">{{ error() }}</p>
+    <button class="text-button" (click)="actualizar()">Actualizar disponibilidad</button>
+  }
+  @if (aviso()) {
+    <p class="notice" role="status">{{ aviso() }}</p>
+  }
+  @if (cart.items().length) {
+    <div class="checkout">
+      <section class="panel">
+        <h2>Productos</h2>
+        @for (i of cart.items(); track i.id) {
+          <article class="cart-item">
+            <img [src]="i.imagen" [alt]="i.nombre" />
+            <div>
+              <a [routerLink]="['/producto', i.id]">{{ i.nombre }}</a>
+              <p>{{ i.precio | currency: 'PEN' : 'S/ ' : '1.2-2' }} por unidad</p>
+              <div class="stepper">
+                <button
+                  (click)="cart.disminuir(i.id)"
+                  [disabled]="ocupado() || i.cantidad <= 1"
+                  [attr.aria-label]="'Reducir ' + i.nombre"
+                >
+                  −</button
+                ><span>{{ i.cantidad }}</span
+                ><button
+                  (click)="cart.aumentar(i.id)"
+                  [disabled]="ocupado() || i.cantidad >= i.stock || i.cantidad >= 99"
+                  [attr.aria-label]="'Aumentar ' + i.nombre"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div>
+              <strong>{{ i.precio * i.cantidad | currency: 'PEN' : 'S/ ' : '1.2-2' }}</strong
+              ><button class="text-button" [disabled]="ocupado()" (click)="cart.eliminar(i.id)">
+                Quitar
+              </button>
+            </div>
+          </article>
+        }
+        <button class="text-button" [disabled]="ocupado()" (click)="cart.vaciar()">
+          Vaciar carrito</button
+        ><a routerLink="/tienda">Seguir comprando</a>
+      </section>
+      <section class="panel">
+        <h2>Completar pedido</h2>
+        <p class="total">Total: {{ cart.total() | currency: 'PEN' : 'S/ ' : '1.2-2' }}</p>
+        <p class="muted">Pago contra entrega. Envío sin costo en esta demostración.</p>
+        @if (auth.usuario()) {
+          <form #form="ngForm" (ngSubmit)="comprar(form)" class="form-stack">
+            <label
+              >Nombre de quien recibe<input
+                name="nombre"
+                [(ngModel)]="nombre"
+                required
+                maxlength="80"
+                autocomplete="name"
+                [disabled]="ocupado()" /></label
+            ><label
+              >Teléfono<input
+                name="telefono"
+                type="tel"
+                [(ngModel)]="telefono"
+                required
+                pattern="[+0-9 ()-]{6,25}"
+                autocomplete="tel"
+                [disabled]="ocupado()" /></label
+            ><label
+              >Dirección completa<textarea
+                name="direccion"
+                [(ngModel)]="direccion"
+                required
+                minlength="8"
+                maxlength="300"
+                autocomplete="street-address"
+                [disabled]="ocupado()"
+              ></textarea></label
+            ><button class="button" type="submit" [disabled]="ocupado() || !listo()">
+              {{ ocupado() ? 'Registrando pedido…' : 'Confirmar pedido contra entrega' }}
             </button>
-
-            <h3 class="modal__title">🧾 Resumen de tu compra</h3>
-
-            <!-- 🔥 DETALLE (CORREGIDO) -->
-            <div class="modal__detalle">
-
-                <div *ngFor="let item of resumenCompra">
-                    <p>{{ item.nombre }} x{{ item.cantidad }}</p>
-                </div>
-
-            </div>
-
-            <!-- 🔥 TOTAL (CORREGIDO) -->
-            <div class="modal__resumen">
-                <p>Total a pagar:</p>
-                <p class="modal__total">
-                    S/ {{ resumenCompra.reduce((t, i) => t + i.precio * i.cantidad, 0) }}
-                </p>
-            </div>
-
-            <p class="modal__mensaje">
-                ✨ ¡Gracias por confiar en LuminSkyn! 💖
-            </p>
-
-            <a routerLink="/" class="modal__btn">
-                Seguir comprando
-            </a>
-
-        </div>
-
+          </form>
+        } @else {
+          <p>Inicia sesión para asociar el pedido a tu cuenta.</p>
+          <a class="button" routerLink="/login" [queryParams]="{ returnUrl: '/carrito' }"
+            >Iniciar sesión</a
+          >
+        }
+      </section>
     </div>
-
+  } @else if (!confirmacion()) {
+    <section class="panel">
+      <p>Tu carrito está vacío.</p>
+      <a class="button" routerLink="/tienda">Explorar productos</a>
+    </section>
+  }
 </main>
-
-

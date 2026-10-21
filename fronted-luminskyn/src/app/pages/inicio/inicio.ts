@@ -1,106 +1,40 @@
-// Importa decorador de Angular para crear componentes
-import { Component } from '@angular/core';
-
-// Permite usar *ngIf, *ngFor, etc.
-import { CommonModule } from '@angular/common';
-
-// Permite usar formularios (ngModel, etc.)
-import { FormsModule } from '@angular/forms';
-
-// Servicio del carrito (lógica central)
-import { CarritoService } from '../../services/carrito';
-
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ApiService, Producto, mensajeError } from '../../services/api';
+import { ProductCard } from '../../shared/product-card';
 @Component({
-  selector: 'app-inicio', // Nombre del componente en HTML
-  standalone: true,       // Componente independiente
-  imports: [CommonModule, FormsModule], // Módulos que puede usar
-  templateUrl: './inicio.html', // HTML
-  styleUrl: './inicio.css',     // CSS
+  selector: 'app-inicio',
+  standalone: true,
+  imports: [RouterLink, ProductCard],
+  templateUrl: './inicio.html',
+  styleUrl: './inicio.css',
 })
-export class Inicio {
-
-  // Inyección del servicio carrito
-  constructor(private carritoService: CarritoService) {}
-
-  // 🟣 PRODUCTOS NUEVOS
-
-  // ❗ ESTA VARIABLE ES GLOBAL (problema)
-  cantidad = 1;
-
-  // Aumenta la cantidad
-  aumentar() {
-    this.cantidad++;
+export class Inicio implements OnInit {
+  private api = inject(ApiService);
+  productos = signal<Producto[]>([]);
+  error = signal('');
+  cargando = signal(true);
+  ngOnInit() {
+    this.cargar();
   }
-
-  // Disminuye la cantidad (mínimo 1)
-  disminuir() {
-    if (this.cantidad > 1) this.cantidad--;
+  cargar() {
+    this.cargando.set(true);
+    this.error.set('');
+    this.api.productos().subscribe({
+      next: (p) => {
+        this.productos.set(p);
+        this.cargando.set(false);
+      },
+      error: (e) => {
+        this.error.set(mensajeError(e));
+        this.cargando.set(false);
+      },
+    });
   }
-
-  // Agrega producto al carrito
-  agregarCarrito() {
-
-    // Crea el objeto producto
-    const producto = {
-      nombre: 'Sérum Hidratante',
-      precio: 49.9,
-      cantidad: this.cantidad
-    };
-
-    // Lo envía al servicio
-    this.carritoService.agregar(producto);
-
-    // Muestra en consola
-    console.log("Producto agregado:", producto);
+  nuevos() {
+    return this.productos().filter((p) => p.nuevo);
   }
-
-  // 🟡 OFERTAS
-
-  // ❗ OTRA VARIABLE GLOBAL
-  cantidadOferta = 1;
-
-  // Aumenta cantidad de oferta
-  aumentarOferta() {
-    this.cantidadOferta++;
+  ofertas() {
+    return this.productos().filter((p) => p.oferta);
   }
-
-  // Disminuye cantidad de oferta
-  disminuirOferta() {
-    if (this.cantidadOferta > 1) this.cantidadOferta--;
-  }
-
-  // Agrega producto de oferta
-  agregarCarritoOferta() {
-    const producto = {
-      nombre: 'Sérum Vitamina C',
-      precio: 56.0,
-      cantidad: this.cantidadOferta
-    };
-
-    this.carritoService.agregar(producto);
-
-    console.log("Oferta agregada:", producto);
-  }
-
-  // 🔵 MODAL
-
-  // Controla si el modal está visible
-  mostrarModal = false;
-
-  // Abre el modal
-  abrirFormulario() {
-    this.mostrarModal = true;
-  }
-
-  // Cierra el modal
-  cerrarModal() {
-    this.mostrarModal = false;
-  }
-
-  // Envía el formulario
-  enviarFormulario() {
-    console.log("Formulario enviado");
-    this.cerrarModal();
-  }
-
 }

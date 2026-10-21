@@ -1,47 +1,30 @@
 package com.luminskyn.backend.controller;
 
-// Permite habilitar CORS (conexión entre frontend y backend)
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.luminskyn.backend.model.Pedido;
 import com.luminskyn.backend.service.PedidoService;
+import jakarta.validation.Valid;
+import java.security.Principal;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
-// Indica que esta clase es un controlador REST
 @RestController
-
-// Ruta base → http://localhost:8080/api/pedidos
 @RequestMapping("/api/pedidos")
-
-// Permite que Angular (puerto 4200) pueda hacer peticiones
-@CrossOrigin(origins = "http://localhost:4200")
 public class PedidoController {
+  private final PedidoService service;
 
-    // Servicio que maneja la lógica (guardar en BD)
-    private final PedidoService service;
+  public PedidoController(PedidoService service) {
+    this.service = service;
+  }
 
-    // Constructor → inyección de dependencias
-    public PedidoController(PedidoService service) {
-        this.service = service;
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public PedidoService.Resumen crear(
+      Principal p, @Valid @RequestBody PedidoService.Solicitud pedido) {
+    return service.crear(p.getName(), pedido);
+  }
 
-    // Maneja peticiones POST → crear pedido
-    @PostMapping
-    public Pedido guardar(@RequestBody Pedido pedido) {
-
-        // 🔥 Mensajes de prueba en consola
-        System.out.println("🔥 LLEGÓ PEDIDO:");
-
-        // Muestra los items del carrito (JSON enviado desde Angular)
-        System.out.println(pedido.getItems());
-
-        // Muestra el total de la compra
-        System.out.println(pedido.getTotal());
-
-        // Llama al servicio para guardar el pedido en la base de datos
-        return service.guardar(pedido);
-    }
+  @GetMapping
+  public List<PedidoService.Resumen> listar(Principal p) {
+    return service.listar(p.getName());
+  }
 }

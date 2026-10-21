@@ -1,36 +1,65 @@
-import { Injectable } from '@angular/core';
-// 👉 Permite que esta clase funcione como un servicio en Angular
-// 👉 Sin esto, no podrías usarlo en otros componentes
-
-import { HttpClient } from '@angular/common/http';
-// 👉 Herramienta para hacer peticiones al backend (GET, POST, etc.)
-
-@Injectable({
-  providedIn: 'root'
-  // 👉 Hace que este servicio esté disponible en TODA la aplicación
-  // 👉 No necesitas importarlo manualmente en cada lugar
-})
-
-export class ApiService {
-
-  private url = 'http://localhost:8080/api/pedidos';
-  // 👉 URL del backend (donde está tu API)
-  // 👉 Aquí se enviarán los pedidos
-
-  constructor(private http: HttpClient) {}
-  // 👉 Angular inyecta HttpClient automáticamente
-  // 👉 Lo guardamos en "http" para usarlo en métodos
-
-  enviarPedido(pedido: any) {
-    // 👉 Método que se encarga de enviar datos al backend
-
-    return this.http.post(this.url, pedido);
-    // 👉 Hace una petición POST (envía datos)
-    // 👉 this.url → dirección del backend
-    // 👉 pedido → datos que estás enviando
-
-    // 👉 Devuelve una respuesta (Observable)
-    // 👉 Luego se usa .subscribe() en el componente para recibirla
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { switchMap } from 'rxjs';
+export interface Producto {
+  id: number;
+  nombre: string;
+  precio: number;
+  imagen: string;
+  categoria: string;
+  descripcion: string;
+  nuevo: boolean;
+  oferta: boolean;
+  stock: number;
+}
+export interface ItemCarrito extends Producto {
+  cantidad: number;
+}
+export interface Detalle {
+  productoId: number;
+  nombre: string;
+  precio: number;
+  cantidad: number;
+}
+export interface Pedido {
+  id: number;
+  items: Detalle[];
+  total: number;
+  fecha: string;
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  estado: string;
+  pago: string;
+}
+export function mensajeError(e: unknown): string {
+  if (e instanceof HttpErrorResponse) {
+    if (e.status === 0 || e.status === 502 || e.status === 504)
+      return 'No podemos conectar con el servidor. Comprueba que el backend esté encendido e inténtalo de nuevo.';
+    if (e.status === 401) return 'Inicia sesión para continuar. Tu sesión puede haber caducado.';
+    return e.error?.message || 'No se pudo completar la operación. Inténtalo nuevamente.';
   }
-
+  return 'Ocurrió un error. Inténtalo nuevamente.';
+}
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  private http = inject(HttpClient);
+  csrf() {
+    return this.http.get('/api/auth/csrf');
+  }
+  productos() {
+    return this.http.get<Producto[]>('/api/productos');
+  }
+  producto(id: number) {
+    return this.http.get<Producto>('/api/productos/' + id);
+  }
+  post<T>(url: string, body: unknown) {
+    return this.csrf().pipe(switchMap(() => this.http.post<T>(url, body)));
+  }
+  enviarPedido(pedido: unknown) {
+    return this.post<Pedido>('/api/pedidos', pedido);
+  }
+  pedidos() {
+    return this.http.get<Pedido[]>('/api/pedidos');
+  }
 }

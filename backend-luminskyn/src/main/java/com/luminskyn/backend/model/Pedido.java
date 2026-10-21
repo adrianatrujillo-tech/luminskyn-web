@@ -1,43 +1,34 @@
 package com.luminskyn.backend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.Instant;
 
 @Entity
-@Table(name = "pedido") // opcional pero recomendado
+@Table(name = "pedido", uniqueConstraints = @UniqueConstraint(columnNames = {"usuarioId", "clave"}))
 public class Pedido {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  public Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Column(columnDefinition = "TEXT")
+  public String items;
 
-    @Column(columnDefinition = "TEXT") // 🔥 IMPORTANTE para guardar JSON largo
-    private String items;
+  @Column(precision = 12, scale = 2)
+  public BigDecimal total;
 
-    private double total;
+  public Long usuarioId;
 
-    // 🔹 GETTERS Y SETTERS
-    public Long getId() {
-        return id;
-    }
+  @Column(length = 36)
+  public String clave;
 
-    public String getItems() {
-        return items;
-    }
+  public Instant fecha;
+  public String nombre;
+  public String telefono;
 
-    public void setItems(String items) {
-        this.items = items;
-    }
+  @Column(length = 300)
+  public String direccion;
 
-    public double getTotal() {
-        return total;
-    }
-
-    public void setTotal(double total) {
-        this.total = total;
-    }
+  public String estado;
+  public String pago;
 }

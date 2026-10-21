@@ -1,22 +1,19 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { Carrito } from './carrito';
-
 describe('Carrito', () => {
-  let component: Carrito;
-  let fixture: ComponentFixture<Carrito>;
-
-  beforeEach(async () => {
+  it('ofrece volver a la tienda cuando está vacío', async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Carrito],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(Carrito);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    const f = TestBed.createComponent(Carrito);
+    f.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/productos').flush([]);
+    await f.whenStable();
+    expect(f.nativeElement.textContent).toContain('Tu carrito está vacío');
   });
 });

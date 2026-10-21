@@ -1,66 +1,68 @@
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
 <header class="header">
-
-    <div class="header__top">
-
-        <button class="header__toggle">☰</button>
-
-        <!-- 🔧 LOGO -->
-        <a routerLink="/" class="header__brand">
-            <img class="header__logo" src="assets/img/logo.png" alt="Logo de LuminSkyn">
-            <span class="header__title">LuminSkyn</span>
-        </a>
-
-        <!-- 🔧 ICONOS -->
-        <div class="header__actions">
-
-            <a routerLink="/login" class="header__icon" aria-label="Login">
-                👤
-            </a>
-
-            <a routerLink="/carrito" class="header__icon" aria-label="Carrito">
-                🛒 
-                <span class="header__cart-count">
-                    {{ cantidadCarrito }}
-                </span>
-            </a>
-
-        </div>
+  <div class="header__top">
+    <a routerLink="/" class="header__brand"
+      ><img src="assets/img/logo.png" alt="" class="header__logo" /><span class="header__title"
+        >LuminSkyn</span
+      ></a
+    >
+    <div class="header__actions">
+      <a
+        [routerLink]="auth.usuario() ? '/cuenta' : '/login'"
+        class="header__icon"
+        [attr.aria-label]="auth.usuario() ? 'Mi cuenta' : 'Iniciar sesión'"
+        ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="7" r="4" />
+          <path d="M4 22v-3a8 8 0 0 1 16 0v3" />
+        </svg>
+        <span>{{ auth.usuario() ? 'Mi cuenta' : 'Ingresar' }}</span></a
+      ><a routerLink="/carrito" class="header__icon" aria-label="Ver carrito"
+        ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M1 3h3l3 13h12l3-9H5" />
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="19" cy="21" r="1" />
+        </svg>
+        <span class="header__cart-count">{{ cart.cantidadTotal() }}</span></a
+      ><button
+        class="header__toggle"
+        type="button"
+        aria-controls="menu-principal"
+        [attr.aria-expanded]="abierto()"
+        (click)="abierto.set(!abierto())"
+        aria-label="Abrir menú"
+      >
+        ☰
+      </button>
     </div>
-
-    <!-- 🔧 MENÚ -->
-    <nav class="header__nav" aria-label="Navegación principal">
-        <ul class="header__menu">
-
-            <li class="header__item">
-                <a class="header__link" routerLink="/">Inicio</a>
-            </li>
-
-            <li class="header__item">
-                <a class="header__link" href="#product-new">Nuevo</a>
-            </li>
-
-            <li class="header__item">
-                <a class="header__link" routerLink="/tienda">Cuidado Facial</a>
-            </li>
-
-            <li class="header__item">
-                <a class="header__link" routerLink="/tienda">Rutina</a>
-            </li>
-
-            <li class="header__item">
-                <a class="header__link" routerLink="/tienda">Tipos de Piel</a>
-            </li>
-
-            <li class="header__item">
-                <a class="header__link" routerLink="/tienda">Accesorios</a>
-            </li>
-
-            <li class="header__item">
-                <a class="header__link" href="#product-offers">Ofertas</a>
-            </li>
-
-        </ul>
-    </nav>
-
+  </div>
+  <nav
+    id="menu-principal"
+    class="header__nav"
+    [class.open]="abierto()"
+    aria-label="Navegación principal"
+  >
+    <ul class="header__menu" (click)="abierto.set(false)">
+      <li>
+        <a
+          routerLink="/"
+          routerLinkActive="header__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="header__link"
+          >Inicio</a
+        >
+      </li>
+      <li><a routerLink="/tienda" class="header__link">Cuidado facial</a></li>
+      <li><a routerLink="/" fragment="product-new" class="header__link">Nuevo</a></li>
+      <li><a routerLink="/ayuda/rutina" class="header__link">Rutina y tipos de piel</a></li>
+      <li>
+        <a routerLink="/tienda" [queryParams]="{ categoria: 'Accesorios' }" class="header__link"
+          >Accesorios</a
+        >
+      </li>
+      <li>
+        <a routerLink="/tienda" [queryParams]="{ ofertas: 'si' }" class="header__link">Ofertas</a>
+      </li>
+      <li><a routerLink="/contacto" class="header__link">Contacto</a></li>
+    </ul>
+  </nav>
 </header>
-

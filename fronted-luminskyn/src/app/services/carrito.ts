@@ -1,131 +1,101 @@
-// Importa decoradores y herramientas de Angular
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-
-// Función para verificar si estamos en navegador (y no en servidor SSR)
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-
-// Hace que este servicio esté disponible en toda la aplicación (singleton)
-@Injectable({
-  providedIn: 'root'
-})
+import { ItemCarrito, Producto } from './api';
+@Injectable({ providedIn: 'root' })
 export class CarritoService {
-
-  // 🛒 Array donde se almacenan los productos del carrito
-  carrito: any[] = [];
-
-  // Constructor: se ejecuta al iniciar el servicio
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    // Carga el carrito guardado en localStorage (si existe)
-    this.cargarCarrito();
-  }
-
-  // 🛒 AGREGAR PRODUCTO AL CARRITO
-  agregar(producto: any) {
-
-    // Busca si el producto ya existe en el carrito (por nombre)
-    const existente = this.carrito.find(p => p.nombre === producto.nombre);
-
-    // Si ya existe → suma la cantidad
-    if (existente) {
-      existente.cantidad += producto.cantidad;
-
-    // Si no existe → lo agrega al carrito
-    } else {
-      this.carrito.push({ ...producto }); // copia del objeto
-    }
-
-    // Guarda los cambios en localStorage
-    this.guardarCarrito();
-  }
-
-  // 📦 OBTENER TODOS LOS PRODUCTOS DEL CARRITO
-  obtener() {
-    return this.carrito;
-  }
-
-  // 🧹 VACIAR EL CARRITO COMPLETAMENTE
-  vaciar() {
-    this.carrito.length = 0; // elimina todos los elementos
-    this.guardarCarrito();   // guarda cambios
-  }
-
-  // 💰 CALCULAR TOTAL A PAGAR
-  total() {
-    // Recorre todos los productos y suma precio * cantidad
-    return this.carrito.reduce((sum, p) => sum + p.precio * p.cantidad, 0);
-  }
-
-  // 🛒 CALCULAR CANTIDAD TOTAL DE PRODUCTOS
-  cantidadTotal() {
-    // Suma todas las cantidades de productos
-    return this.carrito.reduce((total, p) => total + p.cantidad, 0);
-  }
-
-  // 💾 GUARDAR CARRITO EN LOCALSTORAGE
-  guardarCarrito() {
-
-    // Solo se ejecuta si estamos en navegador
-    if (isPlatformBrowser(this.platformId)) {
-
-      // Guarda el carrito como string JSON
-      localStorage.setItem('carrito', JSON.stringify(this.carrito));
-    }
-  }
-
-  // 🔄 CARGAR CARRITO DESDE LOCALSTORAGE
-  cargarCarrito() {
-
-    // Solo se ejecuta en navegador
-    if (isPlatformBrowser(this.platformId)) {
-
-      // Obtiene los datos guardados
-      const data = localStorage.getItem('carrito');
-
-      // Si existen datos → los convierte a objeto
-      if (data) {
-        this.carrito = JSON.parse(data);
+  private browser = isPlatformBrowser(inject(PLATFORM_ID));
+  readonly items = signal<ItemCarrito[]>([]);
+  constructor() {
+    if (this.browser)
+      try {
+        const data: unknown = JSON.parse(localStorage.getItem('luminskyn-carrito') || '[]');
+        if (Array.isArray(data))
+          this.items.set(
+            data
+              .filter(
+                (p) =>
+                  p &&
+                  Number.isSafeInteger(p.id) &&
+                  p.id > 0 &&
+                  Number.isInteger(p.cantidad) &&
+                  p.cantidad >= 1 &&
+                  p.cantidad <= 99 &&
+                  Number.isFinite(p.precio) &&
+                  p.precio >= 0 &&
+                  typeof p.nombre === 'string' &&
+                  Number.isInteger(p.stock),
+              )
+              .map((p) => ({ ...p })),
+          );
+      } catch {
+        this.items.set([]);
       }
+  }
+  private guardar() {
+    if (this.browser)
+      try {
+        localStorage.setItem('luminskyn-carrito', JSON.stringify(this.items()));
+      } catch {
+        /* El carrito sigue disponible en memoria. */
+      }
+  }
+  obtener() {
+    return this.items();
+  }
+  agregar(p: Producto, cantidad = 1) {
+    if (!Number.isInteger(cantidad) || cantidad < 1) return;
+    const existente = this.items().find((x) => x.id === p.id);
+    const total = (existente?.cantidad || 0) + cantidad;
+    if (total > Math.min(p.stock, 99))
+      throw new Error('No hay suficiente stock para esa cantidad.');
+    this.items.update((xs) =>
+      existente
+        ? xs.map((x) => (x.id === p.id ? { ...p, cantidad: total } : x))
+        : [...xs, { ...p, cantidad }],
+    );
+    this.guardar();
+  }
+  eliminar(id: number) {
+    this.items.update((xs) => xs.filter((x) => x.id !== id));
+    this.guardar();
+  }
+  aumentar(id: number) {
+    this.items.update((xs) =>
+      xs.map((x) => (x.id === id ? { ...x, cantidad: Math.min(x.cantidad + 1, x.stock, 99) } : x)),
+    );
+    this.guardar();
+  }
+  disminuir(id: number) {
+    this.items.update((xs) =>
+      xs.map((x) => (x.id === id ? { ...x, cantidad: Math.max(1, x.cantidad - 1) } : x)),
+    );
+    this.guardar();
+  }
+  vaciar() {
+    this.items.set([]);
+    this.guardar();
+  }
+  total() {
+    return Math.round(this.items().reduce((s, p) => s + p.precio * p.cantidad, 0) * 100) / 100;
+  }
+  cantidadTotal() {
+    return this.items().reduce((s, p) => s + p.cantidad, 0);
+  }
+  reconciliar(productos: Producto[]) {
+    let cambio = false;
+    const actualizados: ItemCarrito[] = [];
+    for (const i of this.items()) {
+      const p = productos.find((p) => p.id === i.id);
+      if (!p || p.stock < 1) {
+        cambio = true;
+        continue;
+      }
+      const cantidad = Math.min(i.cantidad, p.stock, 99);
+      if (cantidad !== i.cantidad || i.precio !== p.precio) cambio = true;
+      actualizados.push({ ...p, cantidad });
     }
+    this.items.set(actualizados);
+    this.guardar();
+    return cambio;
   }
-
-  // ❌ ELIMINAR UN PRODUCTO POR NOMBRE
-  eliminar(nombre: string) {
-
-    // Filtra el carrito quitando ese producto
-    this.carrito = this.carrito.filter(p => p.nombre !== nombre);
-
-    // Guarda cambios
-    this.guardarCarrito();
-  }
-
-  // ➕ AUMENTAR CANTIDAD DE UN PRODUCTO
-  aumentar(nombre: string) {
-
-    // Busca el producto
-    const producto = this.carrito.find(p => p.nombre === nombre);
-
-    // Si existe → aumenta cantidad
-    if (producto) {
-      producto.cantidad++;
-
-      // Guarda cambios
-      this.guardarCarrito();
-    }
-  }
-
-  // ➖ DISMINUIR CANTIDAD DE UN PRODUCTO
-  disminuir(nombre: string) {
-
-    // Busca el producto
-    const producto = this.carrito.find(p => p.nombre === nombre);
-
-    // Si existe y la cantidad es mayor a 1 → reduce
-    if (producto && producto.cantidad > 1) {
-      producto.cantidad--;
-
-      // Guarda cambios
-      this.guardarCarrito();
-    }
-  }
-
 }

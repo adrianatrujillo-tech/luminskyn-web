@@ -1,22 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { Header } from './header';
-
-describe('Header', () => {
-  let component: Header;
-  let fixture: ComponentFixture<Header>;
-
-  beforeEach(async () => {
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { HeaderComponent } from './header';
+describe('HeaderComponent', () => {
+  it('abre y cierra el menú móvil', async () => {
     await TestBed.configureTestingModule({
-      imports: [Header],
+      imports: [HeaderComponent],
+      providers: [provideRouter([]), provideHttpClient()],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(Header);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    const f = TestBed.createComponent(HeaderComponent);
+    await f.whenStable();
+    f.nativeElement.querySelector('button').click();
+    await f.whenStable();
+    expect(f.nativeElement.querySelector('nav').classList.contains('open')).toBe(true);
   });
 });

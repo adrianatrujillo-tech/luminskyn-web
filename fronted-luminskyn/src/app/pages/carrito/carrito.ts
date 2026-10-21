@@ -1,117 +1,88 @@
-// Importa decorador para crear componentes
-import { Component } from '@angular/core';
-
-// Permite usar directivas básicas como *ngIf, *ngFor
-import { CommonModule } from '@angular/common';
-
-// Servicio que maneja el carrito (lógica central)
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { ApiService, Pedido, mensajeError } from '../../services/api';
+import { AuthService } from '../../services/auth';
 import { CarritoService } from '../../services/carrito';
-
-// Servicio para enviar datos al backend (API)
-import { ApiService } from '../../services/api';
-
 @Component({
-  selector: 'app-carrito', // Nombre del componente en HTML
-  standalone: true,        // Componente independiente (Angular moderno)
-  imports: [CommonModule], // Módulos que puede usar el HTML
-  templateUrl: './carrito.html', // Vista HTML
-  styleUrl: './carrito.css',     // Estilos
+  selector: 'app-carrito',
+  standalone: true,
+  imports: [CurrencyPipe, FormsModule, RouterLink],
+  templateUrl: './carrito.html',
+  styleUrl: './carrito.css',
 })
-export class Carrito {
-
-  // Inyección de dependencias (servicios)
-  constructor(
-    private carritoService: CarritoService,
-    private apiService: ApiService
-  ) {}
-
-  // 🛒 OBTENER CARRITO (REACTIVO)
-  // Cada vez que Angular lo usa, obtiene el estado actualizado
-  get carrito() {
-    return this.carritoService.obtener();
+export class Carrito implements OnInit {
+  cart = inject(CarritoService);
+  auth = inject(AuthService);
+  private api = inject(ApiService);
+  private router = inject(Router);
+  error = signal('');
+  aviso = signal('');
+  ocupado = signal(false);
+  listo = signal(false);
+  confirmacion = signal<Pedido | null>(null);
+  nombre = this.auth.usuario()?.nombre || '';
+  telefono = '';
+  direccion = '';
+  ngOnInit() {
+    this.actualizar();
   }
-
-  // 💰 TOTAL DEL CARRITO
-  get total() {
-    return this.carritoService.total();
-  }
-
-  // 🔥 RESUMEN DE COMPRA (para mostrar en modal)
-  resumenCompra: any[] = [];
-
-  // 🔥 CONTROL DEL MODAL (mostrar u ocultar)
-  mostrarModal = false;
-
-  // 🛒 CANTIDAD TOTAL DE PRODUCTOS (para header o badge)
-  cantidadTotal() {
-    return this.carrito.reduce((total, p) => total + p.cantidad, 0);
-  }
-
-  // ❌ ELIMINAR PRODUCTO
-  eliminarProducto(nombre: string) {
-    // Confirmación antes de eliminar
-    if (confirm("¿Eliminar producto?")) {
-      this.carritoService.eliminar(nombre);
-    }
-  }
-
-  // ➕ AUMENTAR CANTIDAD DE UN PRODUCTO
-  aumentarCantidad(nombre: string) {
-    this.carritoService.aumentar(nombre);
-  }
-
-  // ➖ DISMINUIR CANTIDAD DE UN PRODUCTO
-  disminuirCantidad(nombre: string) {
-    this.carritoService.disminuir(nombre);
-  }
-
-  // 🧹 VACIAR TODO EL CARRITO
-  vaciarCarrito() {
-    this.carritoService.vaciar();
-  }
-
-  // 🛍️ REALIZAR COMPRA
-  comprarCarrito() {
-
-    // Si el carrito está vacío → no hace nada
-    if (this.carrito.length === 0) return;
-
-    // Construye el objeto pedido para enviar al backend
-    const pedido = {
-      items: JSON.stringify(this.carrito), // convierte a texto JSON
-      total: this.total                    // total de la compra
-    };
-
-    // Llama al API para enviar el pedido
-    this.apiService.enviarPedido(pedido).subscribe({
-
-      // ✅ SI TODO SALE BIEN
-      next: (res) => {
-        console.log("Pedido enviado:", res);
-
-        // 🔥 1. Guarda una copia del carrito (para mostrar resumen)
-        this.resumenCompra = [...this.carrito];
-
-        // 🔥 2. Abre el modal de confirmación
-        this.mostrarModal = true;
-
-        // 🔥 3. Vacía el carrito después de comprar
-        this.carritoService.vaciar();
+  actualizar() {
+    this.listo.set(false);
+    this.api.productos().subscribe({
+      next: (ps) => {
+        if (this.cart.reconciliar(ps))
+          this.aviso.set(
+            'Actualizamos los precios o cantidades disponibles de tu carrito. Revisa el total.',
+          );
+        this.listo.set(true);
       },
-
-      // ❌ SI HAY ERROR
-      error: (err) => {
-        console.error("Error:", err);
-
-        // (esto no hace nada realmente, puedes quitarlo)
-        setTimeout(() => {}, 0);
-      }
+      error: (e) => this.error.set(mensajeError(e)),
     });
   }
-
-  // ❌ CERRAR MODAL
-  cerrarModal() {
-    this.mostrarModal = false; 
+  comprar(form: NgForm) {
+    if (this.ocupado() || !this.cart.items().length || !this.listo()) return;
+    if (!this.auth.usuario()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/carrito' } });
+      return;
+    }
+    if (form.invalid || !this.nombre.trim() || this.direccion.trim().length < 8) {
+      this.error.set('Completa tu nombre, teléfono y dirección de entrega.');
+      return;
+    }
+    const datos = {
+      nombre: this.nombre.trim(),
+      telefono: this.telefono.trim(),
+      direccion: this.direccion.trim(),
+      items: this.cart.items().map((p) => ({ productoId: p.id, cantidad: p.cantidad })),
+    };
+    const huella = JSON.stringify({ usuario: this.auth.usuario()?.id, ...datos });
+    let clave = crypto.randomUUID();
+    try {
+      const anterior = JSON.parse(sessionStorage.getItem('luminskyn-pedido-pendiente') || 'null');
+      if (anterior?.huella === huella) clave = anterior.clave;
+      sessionStorage.setItem('luminskyn-pedido-pendiente', JSON.stringify({ huella, clave }));
+    } catch {}
+    this.ocupado.set(true);
+    this.error.set('');
+    this.api.enviarPedido({ ...datos, clave }).subscribe({
+      next: (p) => {
+        this.confirmacion.set(p);
+        this.cart.vaciar();
+        this.ocupado.set(false);
+        try {
+          sessionStorage.removeItem('luminskyn-pedido-pendiente');
+        } catch {}
+      },
+      error: (e) => {
+        this.ocupado.set(false);
+        this.error.set(mensajeError(e));
+        if (e.status === 401) {
+          this.auth.usuario.set(null);
+          this.router.navigate(['/login'], { queryParams: { returnUrl: '/carrito' } });
+        } else if (e.status === 409) this.actualizar();
+      },
+    });
   }
-
 }
