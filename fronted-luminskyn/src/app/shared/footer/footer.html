@@ -1,0 +1,102 @@
+<footer class="footer">
+
+    <!-- TOP -->
+    <div class="footer__top">
+
+        <div class="footer__brand">
+            <!-- 🔧 IMAGEN -->
+            <img src="assets/img/logo.png" alt="Logo LuminSkyn" class="footer__logo">
+            <h2 class="footer__name">LuminSkyn</h2>
+            <p class="footer__description">
+                Skincare facial para una piel sana, luminosa y natural ✨
+            </p>
+        </div>
+
+        <div class="footer__newsletter">
+            <h3 class="footer__heading">Únete a nuestra comunidad</h3>
+
+            <!-- 🔧 FORMULARIO ANGULAR -->
+            <form class="footer__form" (ngSubmit)="suscribirse()">
+
+                <input 
+                    type="email" 
+                    placeholder="Escribe tu correo" 
+                    class="footer__input"
+                    [(ngModel)]="correo"
+                    name="correo"
+                    required
+                >
+
+                <button class="footer__button" type="submit">
+                    Suscribirme
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="footer__content">
+
+        <!-- CATEGORÍAS -->
+        <div class="footer__column">
+            <h3 class="footer__heading">Skincare</h3>
+            <ul class="footer__list">
+
+                <!-- 🔧 ROUTER -->
+                <li><a routerLink="/tienda" class="footer__link">Cuidado Facial</a></li>
+                <li><a routerLink="/tienda" class="footer__link">Rutina</a></li>
+                <li><a routerLink="/tienda" class="footer__link">Tipos de Piel</a></li>
+                <li><a routerLink="/tienda" class="footer__link">Accesorios</a></li>
+
+            </ul>
+        </div>
+
+        <!-- AYUDA -->
+        <div class="footer__column">
+            <h3 class="footer__heading">Ayuda</h3>
+            <ul class="footer__list">
+                <li><a href="#" class="footer__link">Cambios y devoluciones</a></li>
+                <li><a href="#" class="footer__link">Términos y condiciones</a></li>
+                <li><a href="#" class="footer__link">Privacidad</a></li>
+            </ul>
+        </div>
+
+        <!-- CONTACTO -->
+        <div class="footer__column">
+            <h3 class="footer__heading">Contacto</h3>
+            <p class="footer__text">📞 +51 999 999 999</p>
+            <p class="footer__text">📧 ventas@luminskyn.com</p>
+
+            <!-- REDES -->
+            <div class="footer__social">
+                <ul class="footer__social-list">
+                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-facebook-f"></i></a></li>
+                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-instagram"></i></a></li>
+                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-tiktok"></i></a></li>
+                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-youtube"></i></a></li>
+                    <li><a href="#" class="footer__social-link"><i class="fa-brands fa-linkedin-in"></i></a></li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="footer__bottom">
+
+        <p class="footer__copy">
+            © 2026 LuminSkyn - Todos los derechos reservados
+        </p>
+
+        <div class="footer__payments">
+            <span>💳</span>
+            <span>💳</span>
+            <span>💳</span>
+        </div>
+
+    </div>
+
+</footer>

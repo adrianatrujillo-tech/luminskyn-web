@@ -1,0 +1,49 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* ============ VARIABLES ============ */
+:root {
+    --color-primary: #8e7cc3;
+    --color-primary-dark: #6f5bb5;
+    --color-bg: #f7f7f7;
+    --color-white: #ffffff;
+    --color-text: #333;
+    --color-text-light: #777;
+    --color-border: #eee;
+    --color-sale: #ff4d6d;
+    --color-success: #4CAF50;
+
+    --radius: 14px;
+    --radius-lg: 20px;
+    --shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+}
+
+/* ============ RESET ============ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+a {
+    text-decoration: none;
+}
+

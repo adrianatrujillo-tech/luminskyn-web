@@ -1,0 +1,314 @@
+
+<main id="main__content-inicio">
+
+    <!-- 🎯 HERO -->
+    <section class="hero">
+
+        <div class="hero__content">
+            <p class="hero__subtitle">
+                Skincare facial para todo tipo de piel
+            </p>
+
+            <h1 class="hero__title">
+                Mejora tu piel con la rutina correcta
+            </h1>
+
+            <p class="hero__description">
+                Encuentra productos para acné, manchas, hidratación y cuidado diario
+            </p>
+
+            <!-- 🔧 CAMBIO CLAVE -->
+            <a class="hero__button" routerLink="/tienda">
+                Empieza tu rutina
+            </a>
+
+            <p class="hero__trust">
+                ✨ Resultados visibles con constancia
+            </p>
+        </div>
+
+        <div class="hero__image">
+            <img class="hero__img" src="assets/img/hero.jpg" alt="Rutina de cuidado facial para piel saludable">
+        </div>
+
+    </section>
+
+
+    <!-- NUEVOS PRODUCTOS -->
+    <section id="product-new" class="products products--new">
+
+        <div class="products__header">
+            <h2 class="products__title">Nuevos productos</h2>
+            <a href="#" class="products__link">Ver todo</a>
+        </div>
+
+        <div class="products__grid">
+
+            <!-- CARD 1 -->
+             
+            <article class="card">
+
+                <span class="card__badge card__badge--new">Nuevo</span>
+
+                <!-- 🔧 IMAGEN CORREGIDA -->
+                <img src="assets/img/producto1.jpg" alt="Sérum hidratante facial" class="card__img">
+
+                <h3 class="card__name">Sérum Hidratante</h3>
+
+                <p class="card__price">S/ 49.90</p>
+
+                <div class="card__cantidad">
+
+                    <!-- 🔧 EVENTOS ANGULAR -->
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+
+                    <span class="cantidad">{{ cantidad }}</span>
+
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+
+                </div>
+
+                <!-- 🔧 BOTÓN CON EVENTO -->
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+
+            </article>
+
+
+            <!-- CARD 2 -->
+            <article class="card">
+                <img src="assets/img/producto2.jpg" alt="Crema facial" class="card__img">
+
+                <h3 class="card__name">Crema Facial</h3>
+                <p class="card__price">S/ 39.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 3 -->
+            <article class="card">
+                <img src="assets/img/producto3.jpg" alt="Protector solar" class="card__img">
+
+                <h3 class="card__name">Protector Solar</h3>
+                <p class="card__price">S/ 59.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 4 -->
+            <article class="card">
+                <img src="assets/img/producto4.jpg" alt="Gel limpiador facial" class="card__img">
+
+                <h3 class="card__name">Gel Limpiador</h3>
+                <p class="card__price">S/ 29.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 5 -->
+            <article class="card">
+                <img src="assets/img/producto5.jpg" alt="Tónico facial" class="card__img">
+
+                <h3 class="card__name">Tónico Facial</h3>
+                <p class="card__price">S/ 34.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 6 -->
+            <article class="card">
+                <img src="assets/img/producto6.jpg" alt="Mascarilla facial" class="card__img">
+
+                <h3 class="card__name">Mascarilla Facial</h3>
+                <p class="card__price">S/ 24.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 7 -->
+            <article class="card">
+                <img src="assets/img/producto7.jpg" alt="Crema anti-edad" class="card__img">
+
+                <h3 class="card__name">Crema Anti-edad</h3>
+                <p class="card__price">S/ 69.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 8 -->
+            <article class="card">
+                <img src="assets/img/producto8.jpg" alt="Agua micelar" class="card__img">
+
+                <h3 class="card__name">Agua Micelar</h3>
+                <p class="card__price">S/ 27.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 9 -->
+            <article class="card">
+                <img src="assets/img/producto9.jpg" alt="Exfoliante facial" class="card__img">
+
+                <h3 class="card__name">Exfoliante Facial</h3>
+                <p class="card__price">S/ 32.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+
+            <!-- CARD 10 -->
+            <article class="card">
+                <img src="assets/img/producto10.jpg" alt="Contorno de ojos" class="card__img">
+
+                <h3 class="card__name">Contorno de Ojos</h3>
+                <p class="card__price">S/ 44.90</p>
+
+                <div class="card__cantidad">
+                    <button class="btn-menos" (click)="disminuir()">-</button>
+                    <span class="cantidad">{{ cantidad }}</span>
+                    <button class="btn-mas" (click)="aumentar()">+</button>
+                </div>
+
+                <button class="card__button boton-carrito" (click)="agregarCarrito()">
+                    Agregar al carrito
+                </button>
+            </article>
+            
+        </div>
+
+    </section>
+
+
+    <!-- FORMULARIO -->
+    <section class="banner">
+
+        <div class="banner__content">
+
+            <h2 class="banner__title">
+                Compra al por mayor o menor 💜
+            </h2>
+
+            <p class="banner__text">
+                ¿Eres distribuidor o deseas comprar en volumen?
+                Solicita tu cotización personalizada y obtén mejores precios ✨
+            </p>
+
+            <!-- 🔧 CAMBIO ANGULAR -->
+            <button (click)="abrirFormulario()" class="banner__button">
+                Solicitar cotización
+            </button>
+
+        </div>
+
+        <!-- MODAL FORMULARIO -->
+        <div class="modal" *ngIf="mostrarModal">
+
+            <!-- 🔧 OVERLAY CERRAR -->
+            <div class="modal__overlay" (click)="cerrarModal()"></div>
+
+            <div class="modal__contenido">
+
+                <!-- 🔧 BOTÓN CERRAR -->
+                <button class="modal__cerrar" (click)="cerrarModal()">
+                    &times;
+                </button>
+
+                <h3 class="modal__title">📦 Solicitar cotización</h3>
+
+                <!-- 🔧 FORMULARIO ANGULAR -->
+                <form class="form" (ngSubmit)="enviarFormulario()">
+
+                    <input class="form__input" name="nombre" type="text" placeholder="Nombre completo" required>
+                    <input class="form__input" name="correo" type="email" placeholder="Correo electrónico" required>
+                    <input class="form__input" name="telefono" type="text" placeholder="Teléfono / WhatsApp" required>
+
+                    <select class="form__select" name="tipo" required>
+                        <option value="">Tipo de cliente</option>
+                        <option value="individual">Cliente individual</option>
+                        <option value="mayorista">Distribuidor mayorista</option>
+                        <option value="empresa">Empresa</option>
+                    </select>
+
+                    <input class="form__input" name="producto" type="text" placeholder="Producto de interés">
+                    <input class="form__input" name="cantidad" type="number" placeholder="Cantidad aproximada">
+                    <input class="form__input" name="ciudad" type="text" placeholder="Ciudad">
+
+                    <textarea class="form__textarea" name="mensaje" placeholder="Mensaje adicional"></textarea>
+
+                    <button type="submit" class="modal__btn">
+                        Solicitar cotización
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
